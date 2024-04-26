@@ -1,0 +1,66 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DrowningTimer : MonoBehaviour
+{
+    [SerializeField]
+    private Slider slider;
+    [SerializeField]
+    private float maxTime = 5;
+    private float timer = 0;
+    private bool isUnderwater = false;
+
+    void Start()
+    {
+        //************* Instantiate the OSC Handler...
+        OSCHandler.Instance.Init();
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", "ready");
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", "ready");
+        //*************
+        slider.maxValue = maxTime;
+    }
+/* TODO: can use the update fcn to alter drowning sound tempo */
+    void Update()
+    {
+        // slider should follow sonic
+        slider.transform.position = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
+        slider.value = maxTime - timer;
+
+        // slider should show up if underwater
+        slider.gameObject.SetActive(isUnderwater);
+        // timer should count if underwater
+        if (isUnderwater) {
+            timer += Time.deltaTime;
+            //************* Send the message to the client...
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", 500/(timer+1)); // sets tempo of drowning sound
+            //*************
+            if (timer > maxTime) {
+                // Death
+                gameObject.SetActive(false);
+            }
+        }
+        
+    }
+ /* TODO: can use trigger enter/exit fcns to activate/deactivate drowning sound tempo */
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.CompareTag("Water")) {
+            isUnderwater = true;
+            //************* Send the message to the client...
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", 500); // resets tempo of drowning sound to default (500)
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", 1); // toggles ON bang object for drowning sound
+            //*************
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other) {
+        if (other.gameObject.CompareTag("Water")) {
+            isUnderwater = false;
+            timer = 0;
+            //************* Send the message to the client...
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", 0); // toggles OFF bang object for drowning sound
+            //*************
+        }
+    }
+}
