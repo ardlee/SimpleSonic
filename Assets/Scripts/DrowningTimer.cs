@@ -24,12 +24,10 @@ public class DrowningTimer : MonoBehaviour
         OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", "ready");
 
         //*************
-        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", 0); // toggles OFF bang object for drowning sound
-
 
         slider.maxValue = maxTime;
     }
-/* TODO: can use the update fcn to alter drowning sound tempo */
+
     void Update()
     {
         // slider should follow sonic
@@ -46,17 +44,16 @@ public class DrowningTimer : MonoBehaviour
             if (timer > maxTime) {
                 // Death
                 OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", 1); // value of 1 sent to pd triggers bang object
-
-                //if (timer > maxTime + 0.3) { OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", 0); } // value of 1 sent to pd triggers bang object
-
                 gameObject.SetActive(false);
+                Invoke("endDeathSound", 3); // calls function endDeathSound() after 3 seconds of delay!
             }
         }
-   
-
     }
 
-    
+    void endDeathSound() {
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", 0); // turn off death sound
+    }
+
 
     void FixedUpdate()
     {
@@ -80,7 +77,7 @@ public class DrowningTimer : MonoBehaviour
         //*************
     }
 
-    /* TODO: can use trigger enter/exit fcns to activate/deactivate drowning sound tempo */
+
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.CompareTag("Water")) {
             isUnderwater = true;
