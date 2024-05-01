@@ -17,9 +17,9 @@ public class DrowningTimer : MonoBehaviour
     void Start()
     {
         //************* Instantiate the OSC Handler...
-        OSCHandler.Instance.Init();
-        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", "ready");
-        OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", "ready");
+        //OSCHandler.Instance.Init();
+        //OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", "ready");
+        //OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", "ready");
         //*************
         slider.maxValue = maxTime;
     }
@@ -57,7 +57,7 @@ public class DrowningTimer : MonoBehaviour
         {
             // If we have received at least one packet,
             // show the last received from the log in the Debug console
-            if (item.Value.log.Count > 0)
+            if (item.Value.log.Count > 0 && isUnderwater)
             {
                 int lastPacketIndex = item.Value.packets.Count - 1;
 
