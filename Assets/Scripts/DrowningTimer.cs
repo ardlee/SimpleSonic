@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityOSC;
@@ -20,7 +21,12 @@ public class DrowningTimer : MonoBehaviour
         OSCHandler.Instance.Init();
         OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", "ready");
         OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", "ready");
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", "ready");
+
         //*************
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDrown", 0); // toggles OFF bang object for drowning sound
+
+
         slider.maxValue = maxTime;
     }
 /* TODO: can use the update fcn to alter drowning sound tempo */
@@ -39,6 +45,10 @@ public class DrowningTimer : MonoBehaviour
             OSCHandler.Instance.SendMessageToClient("pd", "/unity/tempoDrown", 500/(timer+1)); // sets tempo of drowning sound
             if (timer > maxTime) {
                 // Death
+                OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", 1); // value of 1 sent to pd triggers bang object
+
+                //if (timer > maxTime + 0.3) { OSCHandler.Instance.SendMessageToClient("pd", "/unity/triggerDeath", 0); } // value of 1 sent to pd triggers bang object
+
                 gameObject.SetActive(false);
             }
         }
@@ -46,6 +56,7 @@ public class DrowningTimer : MonoBehaviour
 
     }
 
+    
 
     void FixedUpdate()
     {
